@@ -233,28 +233,41 @@ async def get_review_queue(
 
     async for doc in cursor:
         rid = str(doc["_id"])
-        candidates = await rank_candidates(db, doc, top_k=1, pool_size=50, same_category_only=True)
+        candidates = await rank_candidates(db, doc, top_k=3, pool_size=50, same_category_only=True)
         if not candidates:
             continue
-        best = candidates[0]
-        pair_key = frozenset({rid, best["record_id"]})
-        if pair_key in decided_pairs or pair_key in seen_pairs:
-            continue
-        seen_pairs.add(pair_key)
+            
+        group_candidates = []
+        for cand in candidates:
+            pair_key = frozenset({rid, cand["record_id"]})
+            if pair_key in decided_pairs or pair_key in seen_pairs:
+                continue
+            seen_pairs.add(pair_key)
 
-        cand_full = await db.records.find_one({"_id": ObjectId(best["record_id"])})
-        result = evaluate_pair(
-            doc.get("category_predicted"), doc.get("attributes") or {},
-            cand_full.get("category_predicted"), cand_full.get("attributes") or {},
-            embedding_similarity=best["embedding_similarity"],
-        )
-        queue.append({
-            "record_a": _record_summary(doc),
-            "record_b": _record_summary(cand_full),
-            **result,
-        })
+            cand_full = await db.records.find_one({"_id": ObjectId(cand["record_id"])})
+            if not cand_full:
+                continue
+                
+            result = evaluate_pair(
+                doc.get("category_predicted"), doc.get("attributes") or {},
+                cand_full.get("category_predicted"), cand_full.get("attributes") or {},
+                embedding_similarity=cand["embedding_similarity"],
+            )
+            group_candidates.append({
+                "record": _record_summary(cand_full),
+                **result,
+            })
+
+        if group_candidates:
+            group_candidates.sort(key=lambda q: _VERDICT_PRIORITY.get(q["verdict"], 4))
+            queue.append({
+                "source_record": _record_summary(doc),
+                "candidates": group_candidates,
+            })
+
         if len(queue) >= limit * 3:  # gather a bit extra so sorting by priority is meaningful
             break
 
-    queue.sort(key=lambda q: _VERDICT_PRIORITY.get(q["verdict"], 4))
+    if queue:
+        queue.sort(key=lambda q: _VERDICT_PRIORITY.get(q["candidates"][0]["verdict"], 4))
     return {"queue": queue[:limit]}

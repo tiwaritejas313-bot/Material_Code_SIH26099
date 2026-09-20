@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { legacyMappingSearch } from "./api";
+import { IconSearch } from "./Icons";
+import { CnmcBanner, SourceTiles } from "./SharedUi";
 
 export default function LegacyMapping() {
   const [code, setCode] = useState("");
@@ -25,16 +27,21 @@ export default function LegacyMapping() {
 
   return (
     <div className="legacy-mapping">
-      <div className="review-toolbar">
+      <div className="dashboard-panel">
         <form onSubmit={handleSearch} className="upload-form">
-          <input
-            type="text"
-            placeholder="Search a common code (CNMC-000001) or an original CPSE code (e.g. B5980)"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            style={{ minWidth: 360 }}
-          />
-          <button type="submit" disabled={loading}>{loading ? "Searching..." : "Search"}</button>
+          <span className="search-field">
+            <IconSearch width={16} height={16} />
+            <input
+              type="text"
+              placeholder="Search a common code (CNMC-000001) or an original CPSE code (e.g. B5980)"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              style={{ minWidth: 400 }}
+            />
+          </span>
+          <button type="submit" disabled={loading}>
+            {loading ? "Searching..." : "Search"}
+          </button>
         </form>
       </div>
 
@@ -42,34 +49,54 @@ export default function LegacyMapping() {
 
       {result && result.match_type === "common_code" && (
         <div className="dashboard-panel">
-          <h3>Common Code → all original CPSE codes</h3>
-          <p className="hint">Matched directly on Common Material Code "{result.query}".</p>
-          <span className="common-code">{result.group.common_code}</span>
-          <span className="group-desc"> {result.group.canonical_description}</span>
-          <table className="group-members-table">
-            <thead><tr><th>CPSE</th><th>Original code</th></tr></thead>
-            <tbody>
-              {result.group.members.map((m) => (
-                <tr key={m.record_id}><td>{m.cpse}</td><td>{m.legacy_code}</td></tr>
-              ))}
-            </tbody>
-          </table>
+          <h3 className="card-title">Common Code → all original CPSE codes</h3>
+          <p className="hint" style={{ marginTop: 0, marginBottom: 12 }}>
+            Matched directly on Common Material Code "{result.query}".
+          </p>
+          <div className="group-trace" style={{ marginTop: 0 }}>
+            <CnmcBanner code={result.group.common_code} />
+            <div className="std-desc">
+              <div className="std-desc-label">Standardized Description</div>
+              {result.group.canonical_description}
+            </div>
+            <SourceTiles members={result.group.members} />
+          </div>
         </div>
       )}
 
       {result && result.match_type === "legacy_code" && (
         <div className="dashboard-panel">
-          <h3>Original code → Common Code</h3>
-          <p className="hint">Matched an original CPSE record for "{result.query}".</p>
-          <table className="group-members-table">
+          <h3 className="card-title">Original code → Common Code</h3>
+          <p className="hint" style={{ marginTop: 0, marginBottom: 12 }}>
+            Matched an original CPSE record for "{result.query}".
+          </p>
+          <table className="kv-table">
             <tbody>
-              <tr><td>CPSE</td><td>{result.record.cpse}</td></tr>
-              <tr><td>Original Code</td><td>{result.record.legacy_code}</td></tr>
-              <tr><td>Description</td><td>{result.record.description}</td></tr>
-              <tr><td>Category</td><td>{result.record.category_predicted || "unclassified"}</td></tr>
+              <tr>
+                <td>CPSE</td>
+                <td>{result.record.cpse}</td>
+              </tr>
+              <tr>
+                <td>Original Code</td>
+                <td>{result.record.legacy_code}</td>
+              </tr>
+              <tr>
+                <td>Description</td>
+                <td>{result.record.description}</td>
+              </tr>
+              <tr>
+                <td>Category</td>
+                <td>{result.record.category_predicted || "unclassified"}</td>
+              </tr>
               <tr>
                 <td>Common Code</td>
-                <td>{result.common_code ? <span className="common-code">{result.common_code}</span> : "Not yet mapped -- no approved match for this record"}</td>
+                <td>
+                  {result.common_code ? (
+                    <span className="common-code">{result.common_code}</span>
+                  ) : (
+                    "Not yet mapped -- no approved match for this record"
+                  )}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -77,14 +104,14 @@ export default function LegacyMapping() {
           {result.group && (
             <>
               <h4>All CPSE codes mapped to {result.group.common_code}</h4>
-              <table className="group-members-table">
-                <thead><tr><th>CPSE</th><th>Original code</th></tr></thead>
-                <tbody>
-                  {result.group.members.map((m) => (
-                    <tr key={m.record_id}><td>{m.cpse}</td><td>{m.legacy_code}</td></tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="group-trace" style={{ marginTop: 0 }}>
+                <CnmcBanner code={result.group.common_code} />
+                <div className="std-desc">
+                  <div className="std-desc-label">Standardized Description</div>
+                  {result.group.canonical_description}
+                </div>
+                <SourceTiles members={result.group.members} />
+              </div>
             </>
           )}
         </div>

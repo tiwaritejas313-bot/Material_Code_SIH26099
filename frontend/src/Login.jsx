@@ -24,18 +24,40 @@ export default function Login({ onLoggedIn }) {
   return (
     <div className="login-screen">
       <form className="login-card" onSubmit={handleSubmit}>
-        <h1>SIH26099 Material Harmonization</h1>
-        <p className="hint">Sign in to continue.</p>
-        {error && <div className="error">{error}</div>}
+        <div className="login-brand">
+          <div className="brand-mark">S</div>
+          <h1>SIH26099 Material Harmonization</h1>
+        </div>
+        <p className="hint" style={{ margin: 0 }}>
+          Sign in to continue.
+        </p>
+        {error && (
+          <div className="error" style={{ margin: 0 }}>
+            {error}
+          </div>
+        )}
         <label>
           Username
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} autoFocus required />
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoFocus
+            required
+          />
         </label>
         <label>
           Password
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
         </label>
-        <button type="submit" disabled={loading}>{loading ? "Signing in..." : "Sign in"}</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Signing in..." : "Sign in"}
+        </button>
       </form>
     </div>
   );
