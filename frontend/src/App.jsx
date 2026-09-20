@@ -288,7 +288,7 @@ function App() {
         <div className="sidebar-brand">
           <div className="brand-mark">S</div>
           <div>
-            <div className="brand-name">SIH26099</div>
+            <div className="brand-name"></div>
             <div className="brand-sub">Material Harmonization</div>
           </div>
         </div>
