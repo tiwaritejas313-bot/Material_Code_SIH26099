@@ -13,9 +13,9 @@ import re
 
 import yaml
 
-DATASETS_ROOT = pathlib.Path(__file__).parent.parent.parent / "sih26099_datasets" / "01_ps_specific" / "samanvay_synthetic_12k_clusters"
-ABBREV_PATH = DATASETS_ROOT / "dictionaries" / "abbreviations.yaml"
-UNITS_PATH = DATASETS_ROOT / "dictionaries" / "units.yaml"
+DATASETS_ROOT = pathlib.Path(__file__).parent / "dictionaries"
+ABBREV_PATH = DATASETS_ROOT / "abbreviations.yaml"
+UNITS_PATH = DATASETS_ROOT / "units.yaml"
 
 
 def _boundary(pattern: str) -> str:
