@@ -125,7 +125,10 @@ def find_candidates(
     if not _load_index():
         return []
 
-    query_vec = encode([query_text])[0]  # already L2-normalized
+    if exclude_id and exclude_id in _id_to_row:
+        query_vec = _embeddings[_id_to_row[exclude_id]]
+    else:
+        query_vec = encode([query_text])[0]
 
     mask = np.ones(len(_ids), dtype=bool)
     if category_filter:
@@ -159,7 +162,10 @@ def find_candidate_pool(
     if not _load_index():
         return []
 
-    query_vec = encode([query_text])[0]
+    if exclude_id and exclude_id in _id_to_row:
+        query_vec = _embeddings[_id_to_row[exclude_id]]
+    else:
+        query_vec = encode([query_text])[0]
 
     mask = np.ones(len(_ids), dtype=bool)
     if category_filter:
