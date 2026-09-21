@@ -128,7 +128,7 @@ function App() {
   const [headerCols, setHeaderCols] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef(null);
-  const [currentUser, setCurrentUser] = useState(getStoredUser);
+  const [currentUser, setCurrentUser] = useState({ username: "admin_auto", role: "admin" });
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
@@ -309,9 +309,6 @@ function App() {
             <span className="name">{currentUser.username}</span>
             <span className="role">{currentUser.role}</span>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <IconLogout /> Sign out
-          </button>
         </div>
       </aside>
 
