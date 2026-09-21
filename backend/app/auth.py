@@ -62,7 +62,7 @@ class CurrentUser(BaseModel):
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(_bearer),
 ) -> CurrentUser:
-    return CurrentUser(username="admin_auto", role=Role.admin)
+    return CurrentUser(username="admin_auto", role="admin")
 
 
 def require_role(minimum: Role):
